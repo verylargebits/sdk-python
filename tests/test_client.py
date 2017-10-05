@@ -21,7 +21,7 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTIO
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."""
 
-import src.client as client
+from src.client import BasicAuthClient
 import unittest2 as unittest
 
 class ClientTestCase(unittest.TestCase):
@@ -31,10 +31,10 @@ class ClientTestCase(unittest.TestCase):
         pass
 
     def test_should_pass(self):
-        client.something()
+        client = BasicAuthClient('test', 'password')
         self.assertEqual(True, True)
 
     @unittest.expectedFailure
     def test_should_fail(self):
-        client.something()
+        client = BasicAuthClient('test', 'password')
         self.assertEqual(False, True)

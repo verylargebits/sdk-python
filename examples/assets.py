@@ -177,8 +177,7 @@ def main():
         else:
             print_help()
 
-        print('Patch size: %s bytes' % data[PATCH_SIZE])
-
+    # Create either a BASIC or SIGNATURE api client
     client = None
     if API_KEY in data:
         client = Client.from_sig_auth(data[API_KEY], data[PRIVATE_KEY])
@@ -205,9 +204,20 @@ def main():
     # Main logic: Do we check a status or upload?
     if '--status' in sys.argv and sys.argv[sys.argv.index('--status') + 1].upper() != 'USABLE':
         # We should check the status of the given file
-        client.get_status(sha1)
+        resp = client.get_status(sha1)
+        if resp.status_code == 200:
+            resp = resp.json()
+            if 'id' in resp:
+                print('Asset: %s' % resp['id'])
+            else:
+                print('Asset not found in the Very Large Bits system')
+        else:
+            print('HTTP Error: %s' % resp)
     else:
         # We should upload the given file
+        if verbose:
+            print('Patch size: %s bytes' % data[PATCH_SIZE])
+
         pass
 
 main()

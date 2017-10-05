@@ -21,7 +21,73 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTIO
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."""
 
-def something():
-    """Nothing"""
+import base64
+import json
 
-    pass
+try:
+    import requests
+except ImportError:
+    raise ImportError('"requests" package not found: see requirements.txt')
+
+# Configuration file keys and defaults
+SERVICE_URL = 'service-url'
+SERVICE_URL_DEFAULT = 'https://api.verylargebits.com'
+
+class BasicAuthClient(object):
+    """An authentication provider using the email and password method"""
+
+    def __init__(self, email, password):
+        self._email = email
+        self._password = password
+
+    def auth_value(self, _):
+        creds = self._email + ':' + self._password
+
+        return 'Basic ' + base64.urlsafe_b64encode(creds.encode('utf-8')).decode('utf-8')
+
+class Client(object):
+    """REST Client for the Very Large Bits API"""
+
+    def __init__(self):
+        self.auth_impl = None
+
+        # Try to open the config.json file
+        try:
+            with open('config.json') as config_file:
+                self.data = json.load(config_file)
+        except (OSError, IOError):
+            # Fallback to defaults
+            self.data = {}
+            self.data[SERVICE_URL] = SERVICE_URL_DEFAULT
+
+    @classmethod
+    def from_basic_auth(cls, email, password):
+        client = Client()
+        client.auth_impl = BasicAuthClient(email, password)
+        
+        return client
+
+    @classmethod
+    def from_sig_auth(cls, api_key, private_key_filename):
+        client = Client()
+        client.auth_impl = SignatureAuthClient(api_key, private_key_filename)
+
+        return client
+
+    def get_status(self, sha1):
+        url = self.data[SERVICE_URL] + '/assets/' + sha1
+        headers = {
+            "Authorization": self.auth_impl.auth_value(None),
+        }
+
+        return requests.get(url, headers=headers)
+
+class SignatureAuthClient(object):
+    """An authentication provider using the RSA signature method"""
+
+    def __init__(self, api_key, password):
+        self._api_key = api_key
+        self._password = password
+
+    def auth_value(self, body):
+        return "Nothing"
