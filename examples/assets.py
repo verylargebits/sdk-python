@@ -28,10 +28,14 @@ import hashlib
 import json
 import sys
 
-try:
-    import requests
-except ImportError:
-    raise ImportError('"requests" package not found: see requirements.txt')
+# Python hack to allow for our folder structure
+from sys import path
+from os.path import dirname as path_dir
+path.append(path_dir(path[0]))
+import src
+# End hack
+
+from src.client import Client
 
 """This sample program (assets.py) demonstrates how to upload and check
 the status of asset files using the Very Large Bits SDK for Python."""
@@ -49,7 +53,7 @@ def calc_sha1(filename):
 
             sha1.update(data)
 
-    return base64.b64encode(sha1.digest(), b'-_').decode("utf-8")
+    return base64.urlsafe_b64encode(sha1.digest()).decode('utf-8')
 
 def convert_byte_sz_str_to_int(value):
     """Takes a human-readble byte size string and returns the long form"""
@@ -71,14 +75,14 @@ def print_help():
 
     print("""Usage: python assets.py [OPTION]... [FILE]...')
 Adds asset FILEs to the Very Large Bits system. Examples:
-    python main.py movie.mp4
-    python main.py -v movie.mp4
-    python main.py --patch-size 24000000 movie.mp4
-    python main.py --patch-size 24MB movie.mp4
-    python main.py --key 0gjv9kpbct9w68809r6jh5ppgb --secret mykeyfile.pkcs8 movie.mp4
+    python assets.py movie.mp4
+    python assets.py -v movie.mp4
+    python assets.py --patch-size 24000000 movie.mp4
+    python assets.py --patch-size 24MB movie.mp4
+    python assets.py --key 0gjv9kpbct9w68809r6jh5ppgb --secret mykeyfile.pkcs8 movie.mp4
 
 Also blocks until a specific status is reached. Example:
-    python main.py -s USABLE movie.mp4
+    python assets.py -s USABLE movie.mp4
 
 Security OPTIONs when using API key authentication:
     -k or --key       Override the config.json api-key value.
@@ -119,6 +123,8 @@ def main():
     # Allow for specification of patch size in json
     if '--patch-size' in sys.argv:
         data['patch-size'] = sys.argv[sys.argv.index('--patch-size') + 1]
+    elif 'patch-size' not in data:
+        data['patch-size'] = '4MB'
 
     # Allow for MB/KB suffixes to make patch size easier to understand
     data['patch-size'] = convert_byte_sz_str_to_int(data['patch-size'])
@@ -165,6 +171,12 @@ def main():
 
         print('Patch size: %s bytes' % data['patch-size'])
 
+    client = None
+    if 'api-key' in data:
+        client = Client.from_sig_auth(data['api-key'], data['private-key-filename'])
+    else:
+        client = Client.from_basic_auth(data['email'], data['password'])
+
     # Allow for changing the default 10 minute wait time for status checks
     wait_secs = 600
     if '-w' in sys.argv:
@@ -185,7 +197,7 @@ def main():
     # Main logic: Do we check a status or upload?
     if '--status' in sys.argv and sys.argv[sys.argv.index('--status') + 1].upper() != 'USABLE':
         # We should check the status of the given file
-        pass
+        client.get_status(sha1)
     else:
         # We should upload the given file
         pass
