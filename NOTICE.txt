@@ -1,0 +1,4 @@
+Very Large Bits SDK for Python
+Copyright 2017 Very Large Bits LLC. All Rights Reserved.
+
+This product includes software developed by Very Large Bits LLC (https://verylargebits.com).

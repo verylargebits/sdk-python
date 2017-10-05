@@ -1,0 +1,13 @@
+# The use of virtualenv is recommended
+#
+# Cheat sheet for setting up multiple Python environments for
+# development purposes:
+# $ sudo apt install -y python python3 virtualenv
+# $ virtualenv -p /usr/bin/python env2
+# $ virtualenv -p /usr/bin/python3 env3
+# $ source env2/bin/activate
+# $ pip install -r requirements.txt
+# $ source env3/bin/activate
+# $ pip install -r requirements.txt
+
+requests
