@@ -40,6 +40,14 @@ from src.client import Client
 """This sample program (assets.py) demonstrates how to upload and check
 the status of asset files using the Very Large Bits SDK for Python."""
 
+# Configuration file keys and defaults
+API_KEY = 'api-key'
+EMAIL = 'email'
+PASSWORD = 'password'
+PATCH_SIZE = 'patch-size'
+PATCH_SIZE_DEFAULT = '4MB'
+PRIVATE_KEY = 'private-key-filename'
+
 def calc_sha1(filename):
     """Calculates and returns the base64 encoded SHA1 hash of a file"""
 
@@ -47,7 +55,7 @@ def calc_sha1(filename):
 
     with open(filename, 'rb') as file_:
         while True:
-            data = file_.read(2 ** 16)
+            data = file_.read(65536)
             if not data:
                 break
 
@@ -118,64 +126,64 @@ def main():
     except (OSError, IOError):
         # Fallback to defaults
         data = {}
-        data['patch-size'] = '4MB'
+        data[PATCH_SIZE] = PATCH_SIZE_DEFAULT
 
     # Allow for specification of patch size in json
     if '--patch-size' in sys.argv:
-        data['patch-size'] = sys.argv[sys.argv.index('--patch-size') + 1]
-    elif 'patch-size' not in data:
-        data['patch-size'] = '4MB'
+        data[PATCH_SIZE] = sys.argv[sys.argv.index('--patch-size') + 1]
+    elif PATCH_SIZE not in data:
+        data[PATCH_SIZE] = PATCH_SIZE_DEFAULT
 
     # Allow for MB/KB suffixes to make patch size easier to understand
-    data['patch-size'] = convert_byte_sz_str_to_int(data['patch-size'])
+    data[PATCH_SIZE] = convert_byte_sz_str_to_int(data[PATCH_SIZE])
 
     # Allow for API key or email override
     if '-k' in sys.argv:
-        data['api-key'] = sys.argv[sys.argv.index('-k') + 1]
-        data['email'] = None
+        data[API_KEY] = sys.argv[sys.argv.index('-k') + 1]
+        data[EMAIL] = None
     elif '--key' in sys.argv:
-        data['api-key'] = sys.argv[sys.argv.index('--key') + 1]
-        data['email'] = None
+        data[API_KEY] = sys.argv[sys.argv.index('--key') + 1]
+        data[EMAIL] = None
     elif '-e' in sys.argv:
-        data['api-key'] = None
-        data['email'] = sys.argv[sys.argv.index('-e') + 1]
+        data[API_KEY] = None
+        data[EMAIL] = sys.argv[sys.argv.index('-e') + 1]
     elif '--email' in sys.argv:
-        data['api-key'] = None
-        data['email'] = sys.argv[sys.argv.index('--email') + 1]
+        data[API_KEY] = None
+        data[EMAIL] = sys.argv[sys.argv.index('--email') + 1]
 
     # Allow for API private key or password override
     if '-s' in sys.argv:
-        data['email'] = None
-        data['private-key-filename'] = sys.argv[sys.argv.index('-s') + 1]
+        data[EMAIL] = None
+        data[PRIVATE_KEY] = sys.argv[sys.argv.index('-s') + 1]
     elif '--secret' in sys.argv:
-        data['email'] = None
-        data['private-key-filename'] = sys.argv[sys.argv.index('--secret') + 1]
+        data[EMAIL] = None
+        data[PRIVATE_KEY] = sys.argv[sys.argv.index('--secret') + 1]
     elif '-p' in sys.argv:
-        data['api-key'] = None
-        data['password'] = sys.argv[sys.argv.index('-p') + 1]
+        data[API_KEY] = None
+        data[PASSWORD] = sys.argv[sys.argv.index('-p') + 1]
     elif '--password' in sys.argv:
-        data['api-key'] = None
-        data['password'] = sys.argv[sys.argv.index('--password') + 1]
+        data[API_KEY] = None
+        data[PASSWORD] = sys.argv[sys.argv.index('--password') + 1]
 
     # Verbosity increases with any of the proper switches
     verbose = '-v' in sys.argv or '--verbose' in sys.argv
     if verbose:
-        if 'api-key' in data and 'private-key-filename' in data:
-            print('API key: %s' % data['api-key'])
-            print('Private key: %s' % data['private-key-filename'])
-        elif 'email' in data and 'password' in data:
-            print('Email: %s' % data['email'])
-            print('Password: %s' % ("*" * len(data['password'])))
+        if API_KEY in data and PRIVATE_KEY in data:
+            print('API key: %s' % data[API_KEY])
+            print('Private key: %s' % data[PRIVATE_KEY])
+        elif EMAIL in data and PASSWORD in data:
+            print('Email: %s' % data[EMAIL])
+            print('Password: %s' % ("*" * len(data[PASSWORD])))
         else:
             print_help()
 
-        print('Patch size: %s bytes' % data['patch-size'])
+        print('Patch size: %s bytes' % data[PATCH_SIZE])
 
     client = None
-    if 'api-key' in data:
-        client = Client.from_sig_auth(data['api-key'], data['private-key-filename'])
+    if API_KEY in data:
+        client = Client.from_sig_auth(data[API_KEY], data[PRIVATE_KEY])
     else:
-        client = Client.from_basic_auth(data['email'], data['password'])
+        client = Client.from_basic_auth(data[EMAIL], data[PASSWORD])
 
     # Allow for changing the default 10 minute wait time for status checks
     wait_secs = 600
