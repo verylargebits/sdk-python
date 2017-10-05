@@ -21,7 +21,20 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTIO
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."""
 
-def something():
-    """Nothing"""
+import src.client as client
+import unittest2 as unittest
 
-    pass
+class ClientTestCase(unittest.TestCase):
+    """TESTING 456"""
+
+    def setUp(self):
+        pass
+
+    def test_should_pass(self):
+        client.something()
+        self.assertEqual(True, True)
+
+    @unittest.expectedFailure
+    def test_should_fail(self):
+        client.something()
+        self.assertEqual(False, True)

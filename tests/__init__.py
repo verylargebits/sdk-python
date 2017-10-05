@@ -21,7 +21,14 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTIO
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."""
 
-def something():
-    """Nothing"""
+import os.path
+import unittest
 
-    pass
+def all_tests():
+    """Default test suite"""
+
+    from .test_client import ClientTestCase
+
+    client_suite = unittest.TestLoader().loadTestsFromTestCase(ClientTestCase)
+
+    return unittest.TestSuite([client_suite])

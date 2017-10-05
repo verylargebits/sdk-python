@@ -1,3 +1,13 @@
 env2/
 env3/
 src/config.json
+dist/*
+docs/_build/*
+.tox
+*.pyc
+verylargebits_sdk.egg-info
+build/
+.coverage
+/.project
+/.pydevproject
+/.settings/
