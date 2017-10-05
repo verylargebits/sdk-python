@@ -1,4 +1,4 @@
-# Very Large Bits SDK for Python [![Build Status](https://travis-ci.org/verylargebits/sdk-python.svg?branch=master)](https://travis-ci.org/verylargebits/sdk-python)
+# Very Large Bits SDK for Python [![Build Status](https://travis-ci.org/verylargebits/sdk-python.svg?branch=master)](https://travis-ci.org/verylargebits/sdk-python)[![Coverage Status](https://coveralls.io/repos/github/verylargebits/sdk-python/badge.svg?branch=master)](https://coveralls.io/github/verylargebits/sdk-python?branch=master)
 
 The **Very Large Bits SDK for Python** enables Python 2.7 and Python 3.x developers to easily work with [Very Large Bits][vlb] web services and build enterprise-grade video solutions. You can get started in minutes using ***pip*** or by downloading a [single zip file][install-sdk].
 
