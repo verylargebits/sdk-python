@@ -26,12 +26,14 @@ from __future__ import print_function
 import base64
 import hashlib
 import json
+import math
+from os.path import getsize
 import sys
 
 # Python hack to allow for our folder structure
 from sys import path
-from os.path import dirname as path_dir
-path.append(path_dir(path[0]))
+from os.path import dirname
+path.append(dirname(path[0]))
 import src
 # End hack
 
@@ -126,7 +128,6 @@ def main():
     except (OSError, IOError):
         # Fallback to defaults
         data = {}
-        data[PATCH_SIZE] = PATCH_SIZE_DEFAULT
 
     # Allow for specification of patch size in json
     if '--patch-size' in sys.argv:
@@ -135,7 +136,7 @@ def main():
         data[PATCH_SIZE] = PATCH_SIZE_DEFAULT
 
     # Allow for MB/KB suffixes to make patch size easier to understand
-    data[PATCH_SIZE] = convert_byte_sz_str_to_int(data[PATCH_SIZE])
+    patch_size = convert_byte_sz_str_to_int(data[PATCH_SIZE])
 
     # Allow for API key or email override
     if '-k' in sys.argv:
@@ -216,8 +217,46 @@ def main():
     else:
         # We should upload the given file
         if verbose:
-            print('Patch size: %s bytes' % data[PATCH_SIZE])
+            print('Patch size: %s bytes' % patch_size)
 
-        pass
+        # First we check to see if the asset already exists
+        resp = client.get_status(sha1)
+        if resp.status_code == 200:
+            resp = resp.json()
+            if 'id' in resp:
+                print('Asset: %s' % resp['id'])
+                sys.exit()
+        else:
+            print('HTTP Error: %s' % resp)
+
+        file_size = getsize(filename)
+        if verbose:
+            print("File size: %d" % file_size)
+
+        patch_count = int(math.ceil(float(file_size) / float(patch_size)))
+
+        # Start uploading in patch-size chunks
+        asset_id = None
+        with open(filename, 'rb') as file_:
+            for patch_index in range(0, patch_count):
+                if verbose:
+                    print('Sending part %d of %d' % (patch_index + 1, patch_count))
+
+                data = file_.read(patch_size)
+
+                if patch_index == 0:
+                    resp = client.post_asset(data, sha1, patch_count - 1)
+                    if resp.status_code != 200:
+                        print('HTTP Error: %s' % resp)
+                        sys.exit()
+                    else:
+                        asset_id = resp.json()['id']
+                else:
+                    resp = client.patch_asset(asset_id, patch_index, data)
+                    if resp.status_code != 200:
+                        print('HTTP Error: %s' % resp)
+                        sys.exit()
+
+        print('Asset: %s' % asset_id)
 
 main()

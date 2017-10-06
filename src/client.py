@@ -40,7 +40,7 @@ class BasicAuthClient(object):
         self._email = email
         self._password = password
 
-    def auth_value(self, _):
+    def auth_value(self, url, verb, body):
         creds = self._email + ':' + self._password
 
         return 'Basic ' + base64.urlsafe_b64encode(creds.encode('utf-8')).decode('utf-8')
@@ -58,13 +58,15 @@ class Client(object):
         except (OSError, IOError):
             # Fallback to defaults
             self.data = {}
+
+        if SERVICE_URL not in self.data:
             self.data[SERVICE_URL] = SERVICE_URL_DEFAULT
 
     @classmethod
     def from_basic_auth(cls, email, password):
         client = Client()
         client.auth_impl = BasicAuthClient(email, password)
-        
+
         return client
 
     @classmethod
@@ -77,10 +79,42 @@ class Client(object):
     def get_status(self, sha1):
         url = self.data[SERVICE_URL] + '/assets/' + sha1
         headers = {
-            "Authorization": self.auth_impl.auth_value(None),
+            'Authorization': self.auth_impl.auth_value(url, 'GET', None),
         }
 
         return requests.get(url, headers=headers)
+
+    def patch_asset(self, asset_id, patch_index, data):
+        url = self.data[SERVICE_URL] + '/asset/' + asset_id + '/' + str(patch_index)
+        headers = {
+            'Authorization': self.auth_impl.auth_value(url, 'PATCH', data),
+            'Content-Type': 'application/octet-stream',
+        }
+
+        return requests.patch(url, headers=headers, data=data)
+
+    def post_asset(self, data, sha1, patch_count):
+        url = self.data[SERVICE_URL] + '/asset'
+        body = None
+        if patch_count == 0:
+            body = data
+        else:
+            body = {
+                'data': base64.b64encode(data).decode('utf-8'),
+                'hash': sha1,
+                'patch_count': patch_count,
+            }
+
+        headers = {
+            'Authorization': self.auth_impl.auth_value(url, 'POST', body),
+        }
+
+        if patch_count == 0:
+            headers['Content-Type'] = 'application/octet-stream'
+            return requests.post(url, headers=headers, data=body)
+        else:
+            headers['Content-Type'] = 'application/json'
+            return requests.post(url, headers=headers, json=body)
 
 class SignatureAuthClient(object):
     """An authentication provider using the RSA signature method"""
@@ -89,5 +123,5 @@ class SignatureAuthClient(object):
         self._api_key = api_key
         self._password = password
 
-    def auth_value(self, body):
+    def auth_value(self, url, verb, body):
         return "Nothing"
