@@ -116,6 +116,16 @@ class Client(object):
             headers['Content-Type'] = 'application/json'
             return requests.post(url, headers=headers, json=body)
 
+    def post_template(self, template):
+        url = self.data[SERVICE_URL] + '/template'
+        body = json.dumps(template)
+        headers = {
+            'Authorization': self.auth_impl.auth_value(url, 'POST', body),
+            'Content-Type': 'application/json',
+        }
+
+        return requests.post(url, headers=headers, data=body)
+
 class SignatureAuthClient(object):
     """An authentication provider using the RSA signature method"""
 

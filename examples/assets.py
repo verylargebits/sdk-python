@@ -92,7 +92,7 @@ Adds asset FILEs to the Very Large Bits system. Examples:
     python assets.py --key 0gjv9kpbct9w68809r6jh5ppgb --secret mykeyfile.pkcs8 movie.mp4
 
 Also blocks until a specific status is reached. Example:
-    python assets.py -s USABLE movie.mp4
+    python assets.py --status USABLE movie.mp4
 
 Security OPTIONs when using API key authentication:
     -k or --key       Override the config.json api-key value.
@@ -179,18 +179,18 @@ def main():
             print_help()
 
     # Create either a BASIC or SIGNATURE api client
-    client = None
     if API_KEY in data:
         client = Client.from_sig_auth(data[API_KEY], data[PRIVATE_KEY])
     else:
         client = Client.from_basic_auth(data[EMAIL], data[PASSWORD])
 
     # Allow for changing the default 10 minute wait time for status checks
-    wait_secs = 600
     if '-w' in sys.argv:
         wait_secs = int(sys.argv[sys.argv.index('-w') + 1])
     elif '--wait' in sys.argv:
         wait_secs = int(sys.argv[sys.argv.index('--wait') + 1])
+    else:
+        wait_secs = 600
 
     # The file should be the last argument
     filename = sys.argv[len(sys.argv) - 1]
@@ -202,7 +202,7 @@ def main():
     if verbose:
         print('Hash: %s' % sha1)
 
-    # Main logic: Do we check a status or upload?
+    # Main logic: Do we check the status of an asset file or upload one?
     if '--status' in sys.argv and sys.argv[sys.argv.index('--status') + 1].upper() != 'USABLE':
         # We should check the status of the given file
         resp = client.get_status(sha1)
