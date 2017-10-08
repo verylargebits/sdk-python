@@ -34,10 +34,10 @@ import sys
 from sys import path
 from os.path import dirname
 path.append(dirname(path[0]))
-import verylargebits_sdk
+import verylargebits
 # End hack
 
-from verylargebits_sdk.client import Client
+from verylargebits.client import Client
 
 """This sample program (templates.py) demonstrates how to add and render
 video templates using the Very Large Bits SDK for Python."""

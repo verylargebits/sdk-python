@@ -34,10 +34,10 @@ import sys
 from sys import path
 from os.path import dirname
 path.append(dirname(path[0]))
-import verylargebits_sdk
+import verylargebits
 # End hack
 
-from verylargebits_sdk.client import Client
+from verylargebits.client import Client
 
 """This sample program (assets.py) demonstrates how to upload and check
 the status of asset files using the Very Large Bits SDK for Python."""
