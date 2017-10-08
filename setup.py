@@ -29,13 +29,13 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 setup(
     name = "verylargebits_sdk",
     packages = ["verylargebits_sdk"],
-    version = "0.1.2",
+    version = "0.1.3",
     description = "Python SDK for the Very Large Bits API",
     long_description="\n\n".join([
         open(os.path.join(base_dir, "README.md"), "r").read(),
     ]),
     url = "https://github.com/verylargebits/sdk-python",
-    download_url = "https://github.com/verylargebits/sdk-python/archive/0.1.1.tar.gz",
+    download_url = "https://github.com/verylargebits/sdk-python/archive/0.1.2.tar.gz",
     author = "John Wells",
     author_email = "john@verylargebits.com",
     maintainer = "John Wells",
