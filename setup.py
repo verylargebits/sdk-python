@@ -35,7 +35,7 @@ setup(
         open(os.path.join(base_dir, "README.md"), "r").read(),
     ]),
     url = "https://github.com/verylargebits/sdk-python",
-    download_url = "https://github.com/verylargebits/sdk-python/archive/0.1.2.tar.gz",
+    download_url = "https://github.com/verylargebits/sdk-python/archive/0.1.3.tar.gz",
     author = "John Wells",
     author_email = "john@verylargebits.com",
     maintainer = "John Wells",
