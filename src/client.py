@@ -76,8 +76,16 @@ class Client(object):
 
         return client
 
-    def get_status(self, sha1):
+    def get_asset_status(self, sha1):
         url = self.data[SERVICE_URL] + '/assets/' + sha1
+        headers = {
+            'Authorization': self.auth_impl.auth_value(url, 'GET', None),
+        }
+
+        return requests.get(url, headers=headers)
+
+    def get_render_status(self, render_id):
+        url = self.data[SERVICE_URL] + '/render/' + render_id + '/status'
         headers = {
             'Authorization': self.auth_impl.auth_value(url, 'GET', None),
         }
@@ -99,11 +107,11 @@ class Client(object):
         if patch_count == 0:
             body = data
         else:
-            body = {
+            body = json.dumps({
                 'data': base64.b64encode(data).decode('utf-8'),
                 'hash': sha1,
                 'patch_count': patch_count,
-            }
+            })
 
         headers = {
             'Authorization': self.auth_impl.auth_value(url, 'POST', body),
@@ -114,7 +122,24 @@ class Client(object):
             return requests.post(url, headers=headers, data=body)
         else:
             headers['Content-Type'] = 'application/json'
-            return requests.post(url, headers=headers, json=body)
+            return requests.post(url, headers=headers, data=body)
+
+    def post_render(self, template_id, vars_, wait_until, wait_for):
+        url = self.data[SERVICE_URL] + '/render'
+        body = json.dumps({
+            'src': template_id,
+            'vars': vars_,
+        })
+        headers = {
+            'Authorization': self.auth_impl.auth_value(url, 'POST', body),
+            'Content-Type': 'application/json',
+        }
+
+        if wait_until != None:
+            headers['x-wait-until'] = wait_until
+            headers['x-wait-for'] = str(wait_for)
+
+        return requests.post(url, headers=headers, data=body)
 
     def post_template(self, template):
         url = self.data[SERVICE_URL] + '/template'

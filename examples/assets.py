@@ -205,7 +205,7 @@ def main():
     # Main logic: Do we check the status of an asset file or upload one?
     if '--status' in sys.argv and sys.argv[sys.argv.index('--status') + 1].upper() != 'USABLE':
         # We should check the status of the given file
-        resp = client.get_status(sha1)
+        resp = client.get_asset_status(sha1)
         if resp.status_code == 200:
             resp = resp.json()
             if 'id' in resp:
@@ -220,7 +220,7 @@ def main():
             print('Patch size: %s bytes' % patch_size)
 
         # First we check to see if the asset already exists
-        resp = client.get_status(sha1)
+        resp = client.get_asset_status(sha1)
         if resp.status_code == 200:
             resp = resp.json()
             if 'id' in resp:

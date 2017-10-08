@@ -52,13 +52,16 @@ def print_help():
     """Prints out the details of command line usage of this program"""
 
     print("""Usage: python templates.py [OPTION]...')
-Adds and renders templates using the Very Large Bits system. Examples:
+Adds templates using the Very Large Bits system. Examples:
     python templates.py --template template.json
-    python templates.py --render 6nnrqkpbffq8ke6y7rh6trccz5 --vars vars.json
-    python templates.py --key fyn615m07rbpfmydvk3re6wwgq --secret mykeyfile.pkcs8 --template template.json
+    python templates.py --key fyn615m07rbpfmydvk3re6wwgq --secret mykeyfile.pkcs8 -t template.json
 
-Also blocks until a specific status is reached. Example:
-    python templates.py --status DONE -r 6nnrqkpbffq8ke6y7rh6trccz5 --vars vars.json
+Renders templates using the Very Large Bits system. Examples:
+    python templates.py --render 6nnrqkpbffq8ke6y7rh6trccz5 --vars vars.json
+    python templates.py -r 6nnrqkpbffq8ke6y7rh6trccz5 --vars vars.json --done
+
+Checks the status of existing renders using the Very Large Bits system. Example:
+    python templates.py --status 6nnrqkpbffq8ke6y7rh6trccz5
 
 Security OPTIONs when using API Key authentication:
     -k or --key         Override the config.json api-key value.
@@ -68,20 +71,20 @@ Security OPTIONs when using basic API authentication:
     -e or --email       The email address used to sign in to dashboard.verylargebits.com.
     -p or --password    Required if email is specificied.
 
-Template OPTIONs:
+Template mode OPTIONs:
     -t or --template    A JSON-formatted template file conforming to the Very Large Bits
-                        standards to upload.
+                        specification to upload. Returns the ID of the new template.
 
-Render OPTIONs:
-    -r or --render      The ID of the template to render with variable replacements or
-                        the ID of the render to check or wait upon for status. If this value
-                        is a file then it must be a JSON-formatted template file.
-    --vars              A JSON-formatted dictionary file which specifies
-                        variable-replacement operations, if any.
-    --status            Checks the status if none provided or waits until the
-                        provided status is reached. Only valid value is DONE.
-    -w or --wait        The number of seconds to wait if a status value is provided with
-                        --status. Default is 600 (10 minutes).
+Render mode OPTIONs:
+    -r or --render      The ID of the template to render. Returns the ID of the new render.
+    --done              Blocks until rendering and storage operations have completed.
+    --vars              A JSON-formatted dictionary file which specifies variable-replacement
+                        operations, if any.
+    -w or --wait        The number of seconds to block when --done is used. Default is
+                        600 (10 minutes).
+
+Status mode OPTIONs:
+    --status            The ID of the render to check the status of.
 
 Other OPTIONs:
     -h or --help        Print this message.  
@@ -148,7 +151,7 @@ def main():
     else:
         client = Client.from_basic_auth(data[EMAIL], data[PASSWORD])
 
-    # Main logic: Do we upload a template or submit a render request?
+    # Main logic: Do we upload a template or work with a render request?
     if '-t' in sys.argv or '--template' in sys.argv:
         # We should upload a template json file
         if '-t' in sys.argv:
@@ -160,20 +163,58 @@ def main():
         with open(filename) as template_file:
             template = json.load(template_file)
 
+        # Use the SDK to upload a new template
         resp = client.post_template(template)
         if resp.status_code == 200:
-            resp = resp.json()
-            print('Template: %s' % resp['id'])
+            print('Template: %s' % resp.json()['id'])
+        else:
+            print('HTTP Error: %s' % resp)
+    elif '-r' in sys.argv or '--render' in sys.argv:
+        # We should render an existing template
+        if '-r' in sys.argv:
+            template_id = sys.argv[sys.argv.index('-r') + 1]
+        else:
+            template_id = sys.argv[sys.argv.index('--render') + 1]
+
+        # Optional wait-until status is reached
+        if '--done' in sys.argv:
+            wait_until = 'DONE'
+
+            # Allow for changing the default 10 minute wait time for status checks
+            if '-w' in sys.argv:
+                wait_secs = int(sys.argv[sys.argv.index('-w') + 1])
+            elif '--wait' in sys.argv:
+                wait_secs = int(sys.argv[sys.argv.index('--wait') + 1])
+            else:
+                wait_secs = 600
+        else:
+            wait_until = None
+            wait_secs = None
+
+        # Load the vars dictionary file, if provided
+        if '--vars' in sys.argv:
+            with open(sys.argv[sys.argv.index('--vars') + 1]) as vars_file:
+                vars_ = json.load(vars_file)
+        else:
+            vars_ = {}
+
+        # Use the SDK to render an existing template
+        resp = client.post_render(template_id, vars_, wait_until, wait_secs)
+        if resp.status_code == 200:
+            print('Render: %s' % resp.json()['id'])
+        else:
+            print('HTTP Error: %s' % resp)
+    elif '--status' in sys.argv:
+        # We should check the status of an existing render
+        render_id = sys.argv[sys.argv.index('--status') + 1]
+
+        # Use the SDK to check the status of an existing render
+        resp = client.get_render_status(render_id)
+        if resp.status_code == 200:
+            print('Status: %s' % resp.json()['status'])
         else:
             print('HTTP Error: %s' % resp)
     else:
-        # We should submit a render request
-
-        # Allow for changing the default 10 minute wait time for status checks
-        wait_secs = 600
-        if '-w' in sys.argv:
-            wait_secs = int(sys.argv[sys.argv.index('-w') + 1])
-        elif '--wait' in sys.argv:
-            wait_secs = int(sys.argv[sys.argv.index('--wait') + 1])
+        print_help()
 
 main()
