@@ -7,7 +7,7 @@ The **Very Large Bits SDK for Python** enables Python 2.7 and Python 3.x develop
 * [Issues][sdk-issues]
 
 ## Release Notes ##
-Version 0.1
+Version 0.1.5 - Initial release
 
 ## Getting Started
 
@@ -29,7 +29,7 @@ The recommended way to use the Very Large Bits SDK for Python in your project is
 
 Run the following command:
 
-pip install verylargebits-sdk
+pip install verylargebits
 
 ## Features
 
@@ -37,7 +37,7 @@ pip install verylargebits-sdk
 
 ## Supported Versions
 
-* **0.1.0** - Recommended.
+* **0.1.5** - Recommended.
 
 [vlb]: https://verylargebits.com
 [docs-api]: https://api.verylargebits.com/docs/

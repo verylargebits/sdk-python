@@ -5,7 +5,7 @@ dist/*
 docs/_build/*
 .tox
 *.pyc
-verylargebits_sdk.egg-info
+*.egg-info/
 build/
 .coverage
 /.project

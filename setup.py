@@ -24,22 +24,22 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."""
 import os
 from setuptools import setup
 
-base_dir = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 setup(
-    name = "verylargebits",
-    packages = ["verylargebits"],
-    version = "0.1.4",
-    description = "Python SDK for the Very Large Bits API",
+    name="verylargebits",
+    packages=["verylargebits"],
+    version="0.1.5",
+    description="Python SDK for the Very Large Bits API",
     long_description="\n\n".join([
-        open(os.path.join(base_dir, "README.md"), "r").read(),
+        open(os.path.join(BASE_DIR, "README.md"), "r").read(),
     ]),
-    url = "https://github.com/verylargebits/sdk-python",
-    download_url = "https://github.com/verylargebits/sdk-python/archive/0.1.4.tar.gz",
-    author = "John Wells",
-    author_email = "john@verylargebits.com",
-    maintainer = "John Wells",
-    maintainer_email = "john@verylargebits.com",
+    url="https://github.com/verylargebits/sdk-python",
+    download_url="https://github.com/verylargebits/sdk-python/archive/0.1.5.tar.gz",
+    author="John Wells",
+    author_email="john@verylargebits.com",
+    maintainer="John Wells",
+    maintainer_email="john@verylargebits.com",
     classifiers=[
         # See: https://pypi.python.org/pypi?:action=list_classifiers
         'Development Status :: 2 - Pre-Alpha',
@@ -51,8 +51,8 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
-    zip_safe = False,
-    install_requires = ["requests"],
-    tests_require = ["unittest2"],
-    test_suite = "tests.all_tests",
+    zip_safe=False,
+    install_requires=["requests"],
+    tests_require=["unittest2"],
+    test_suite="tests.all_tests",
 )
