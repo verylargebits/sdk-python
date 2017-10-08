@@ -28,12 +28,14 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 
 setup(
     name = "verylargebits_sdk",
-    version = "0.1.0",
+    packages = ["verylargebits_sdk"],
+    version = "0.1",
     description = "Python SDK for the Very Large Bits API",
     long_description="\n\n".join([
         open(os.path.join(base_dir, "README.md"), "r").read(),
     ]),
     url = "https://github.com/verylargebits/sdk-python",
+    download_url = "https://github.com/verylargebits/sdk-python/archive/0.1.tar.gz"
     author = "John Wells",
     author_email = "john@verylargebits.com",
     maintainer = "John Wells",
@@ -49,7 +51,6 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
-    packages = ["src"],
     zip_safe = False,
     install_requires = ["requests"],
     tests_require = ["unittest2"],
