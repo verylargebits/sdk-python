@@ -108,29 +108,29 @@ def main():
     # Allow for API key or email override
     if '-k' in sys.argv:
         data[API_KEY] = sys.argv[sys.argv.index('-k') + 1]
-        data[EMAIL] = None
+        data.pop(EMAIL, None)
     elif '--key' in sys.argv:
         data[API_KEY] = sys.argv[sys.argv.index('--key') + 1]
-        data[EMAIL] = None
+        data.pop(EMAIL, None)
     elif '-e' in sys.argv:
-        data[API_KEY] = None
+        data.pop(API_KEY, None)
         data[EMAIL] = sys.argv[sys.argv.index('-e') + 1]
     elif '--email' in sys.argv:
-        data[API_KEY] = None
+        data.pop(API_KEY, None)
         data[EMAIL] = sys.argv[sys.argv.index('--email') + 1]
 
     # Allow for API private key or password override
     if '-s' in sys.argv:
-        data[EMAIL] = None
+        data.pop(EMAIL, None)
         data[PRIVATE_KEY] = sys.argv[sys.argv.index('-s') + 1]
     elif '--secret' in sys.argv:
-        data[EMAIL] = None
+        data.pop(EMAIL, None)
         data[PRIVATE_KEY] = sys.argv[sys.argv.index('--secret') + 1]
     elif '-p' in sys.argv:
-        data[API_KEY] = None
+        data.pop(API_KEY, None)
         data[PASSWORD] = sys.argv[sys.argv.index('-p') + 1]
     elif '--password' in sys.argv:
-        data[API_KEY] = None
+        data.pop(API_KEY, None)
         data[PASSWORD] = sys.argv[sys.argv.index('--password') + 1]
 
     # Verbosity increases with any of the proper switches
