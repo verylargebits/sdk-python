@@ -21,19 +21,15 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTIO
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."""
 
-import os
 from setuptools import setup
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 setup(
     name="verylargebits",
     packages=["verylargebits"],
     version="0.1.5",
     description="Python SDK for the Very Large Bits API",
-    long_description="\n\n".join([
-        open(os.path.join(BASE_DIR, "README.md"), "r").read(),
-    ]),
+    long_description="Provides an easy-to-use HTTP client for all supported Very Large Bits\
+ services and authentication protocols.",
     url="https://github.com/verylargebits/sdk-python",
     download_url="https://github.com/verylargebits/sdk-python/archive/0.1.5.tar.gz",
     author="John Wells",
