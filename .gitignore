@@ -3,6 +3,7 @@ env3/
 src/config.json
 dist/*
 docs/_build/*
+.eggs/
 .tox
 *.pyc
 *.egg-info/
