@@ -49,6 +49,6 @@ setup(
     ],
     zip_safe=False,
     install_requires=["pycrypto", "requests"],
-    tests_require=["unittest2"],
+    tests_require=["future", "unittest2"],
     test_suite="tests.all_tests",
 )
