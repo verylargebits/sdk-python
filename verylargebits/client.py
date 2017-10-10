@@ -22,6 +22,10 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."""
 
 import base64
+import Crypto
+from Crypto.PublicKey import RSA
+from Crypto.Signature import PKCS1_v1_5
+from Crypto.Hash import SHA256
 import json
 
 try:
@@ -40,7 +44,10 @@ class BasicAuthClient(object):
         self._email = email
         self._password = password
 
-    def auth_value(self, url, verb, body):
+    def auth_value(self, verb, url, body=None):
+        """Returns the Authorization header value for the given arguments"""
+
+        del verb, url, body
         creds = self._email + ':' + self._password
 
         return 'Basic ' + base64.urlsafe_b64encode(creds.encode('utf-8')).decode('utf-8')
@@ -77,32 +84,36 @@ class Client(object):
         return client
 
     def get_asset_status(self, sha1):
-        url = self.data[SERVICE_URL] + '/assets/' + sha1
+        sub_url = '/assets/' + sha1
+        full_url = self.data[SERVICE_URL] + sub_url
         headers = {
-            'Authorization': self.auth_impl.auth_value(url, 'GET', None),
+            'Authorization': self.auth_impl.auth_value('GET', sub_url, None),
         }
 
-        return requests.get(url, headers=headers)
+        return requests.get(full_url, headers=headers)
 
     def get_render_status(self, render_id):
-        url = self.data[SERVICE_URL] + '/render/' + render_id + '/status'
+        sub_url = '/render/' + render_id + '/status'
+        full_url = self.data[SERVICE_URL] + sub_url
         headers = {
-            'Authorization': self.auth_impl.auth_value(url, 'GET', None),
+            'Authorization': self.auth_impl.auth_value('GET', sub_url, None),
         }
 
-        return requests.get(url, headers=headers)
+        return requests.get(full_url, headers=headers)
 
     def patch_asset(self, asset_id, patch_index, data):
-        url = self.data[SERVICE_URL] + '/asset/' + asset_id + '/' + str(patch_index)
+        sub_url = '/asset/' + asset_id + '/' + str(patch_index)
+        full_url = self.data[SERVICE_URL] + sub_url
         headers = {
-            'Authorization': self.auth_impl.auth_value(url, 'PATCH', data),
+            'Authorization': self.auth_impl.auth_value('PATCH', sub_url, data),
             'Content-Type': 'application/octet-stream',
         }
 
-        return requests.patch(url, headers=headers, data=data)
+        return requests.patch(full_url, headers=headers, data=data)
 
     def post_asset(self, data, sha1, patch_count):
-        url = self.data[SERVICE_URL] + '/asset'
+        sub_url = '/asset'
+        full_url = self.data[SERVICE_URL] + sub_url
         body = None
         if patch_count == 0:
             body = data
@@ -111,27 +122,28 @@ class Client(object):
                 'data': base64.b64encode(data).decode('utf-8'),
                 'hash': sha1,
                 'patch_count': patch_count,
-            })
+            }).encode('utf-8')
 
         headers = {
-            'Authorization': self.auth_impl.auth_value(url, 'POST', body),
+            'Authorization': self.auth_impl.auth_value('POST', sub_url, body),
         }
 
         if patch_count == 0:
             headers['Content-Type'] = 'application/octet-stream'
-            return requests.post(url, headers=headers, data=body)
+            return requests.post(full_url, headers=headers, data=body)
         else:
             headers['Content-Type'] = 'application/json'
-            return requests.post(url, headers=headers, data=body)
+            return requests.post(full_url, headers=headers, data=body)
 
     def post_render(self, template_id, vars_, wait_until, wait_for):
-        url = self.data[SERVICE_URL] + '/render'
+        sub_url = '/render'
+        full_url = self.data[SERVICE_URL] + sub_url
         body = json.dumps({
             'src': template_id,
             'vars': vars_,
         })
         headers = {
-            'Authorization': self.auth_impl.auth_value(url, 'POST', body),
+            'Authorization': self.auth_impl.auth_value('POST', sub_url, body),
             'Content-Type': 'application/json',
         }
 
@@ -139,24 +151,39 @@ class Client(object):
             headers['x-wait-until'] = wait_until
             headers['x-wait-for'] = str(wait_for)
 
-        return requests.post(url, headers=headers, data=body)
+        return requests.post(full_url, headers=headers, data=body)
 
     def post_template(self, template):
-        url = self.data[SERVICE_URL] + '/template'
+        sub_url = '/template'
+        full_url = self.data[SERVICE_URL] + sub_url
         body = json.dumps(template)
         headers = {
-            'Authorization': self.auth_impl.auth_value(url, 'POST', body),
+            'Authorization': self.auth_impl.auth_value('POST', sub_url, body),
             'Content-Type': 'application/json',
         }
 
-        return requests.post(url, headers=headers, data=body)
+        return requests.post(full_url, headers=headers, data=body)
 
 class SignatureAuthClient(object):
     """An authentication provider using the RSA signature method"""
 
-    def __init__(self, api_key, password):
+    def __init__(self, api_key, private_key_filename):
         self._api_key = api_key
-        self._password = password
+        self._private_key = RSA.importKey(open(private_key_filename, 'r').read())
 
-    def auth_value(self, url, verb, body):
-        return "Nothing"
+    def auth_value(self, verb, url, body=None):
+        """Returns the Authorization header value for the given arguments"""
+
+        signer = PKCS1_v1_5.new(self._private_key)
+        digest = SHA256.new()
+        digest.update(verb.encode('utf-8'))
+        digest.update(url.encode('utf-8'))
+
+        if body != None:
+            digest.update(body)
+
+        signature = signer.sign(digest)
+        sig = base64.b64encode(signature)
+
+        return 'Signature ' + self._api_key + ':SHA256:' \
+            + sig.decode('utf-8')
