@@ -121,7 +121,7 @@ class Client(object):
             headers['Content-Type'] = 'application/json'
             return requests.post(full_url, headers=headers, data=body)
 
-    def post_render(self, template_id, vars_, wait_until, wait_for):
+    def post_render(self, template_id, vars_={}, wait_until=None, wait_secs=None):
         sub_url = '/render'
         full_url = self.service_url + sub_url
         body = json.dumps({
@@ -135,7 +135,8 @@ class Client(object):
 
         if wait_until != None:
             headers['x-wait-until'] = wait_until
-            headers['x-wait-for'] = str(wait_for)
+            if wait_secs != None:
+                headers['x-wait-for'] = str(wait_secs)
 
         return requests.post(full_url, headers=headers, data=body)
 

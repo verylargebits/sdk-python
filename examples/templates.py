@@ -187,7 +187,7 @@ def main():
             elif '--wait' in sys.argv:
                 wait_secs = int(sys.argv[sys.argv.index('--wait') + 1])
             else:
-                wait_secs = 600
+                wait_secs = None
         else:
             wait_until = None
             wait_secs = None
@@ -200,7 +200,7 @@ def main():
             vars_ = {}
 
         # Use the SDK to render an existing template
-        resp = client.post_render(template_id, vars_, wait_until, wait_secs)
+        resp = client.post_render(template_id, vars_=vars_, wait_until=wait_until, wait_secs=wait_secs)
         if resp.status_code == 200:
             print('Render: %s' % resp.json()['id'])
         else:
