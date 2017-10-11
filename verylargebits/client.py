@@ -54,6 +54,7 @@ class BasicAuthClient(object):
 class Client(object):
     """REST Client for the Very Large Bits API"""
 
+<<<<<<< HEAD
     def __init__(self, auth_impl, service_url):
         self.auth_impl = auth_impl
         if service_url == None:
@@ -68,6 +69,39 @@ class Client(object):
     @classmethod
     def from_sig_auth(cls, api_key, private_key_filename, service_url=SERVICE_URL_DEFAULT):
         return Client(SignatureAuthClient(api_key, private_key_filename), service_url)
+=======
+    def __init__(self, service_url):
+        self.auth_impl = None
+
+        if service_url == None:
+            # Try to open the config.json file
+            try:
+                with open('config.json') as config_file:
+                    self.data = json.load(config_file)
+            except (OSError, IOError):
+                self.data = {}
+        else:
+            self.data = {}
+
+        if service_url != None:
+            self.data[SERVICE_URL] = service_url
+        elif SERVICE_URL not in self.data:
+            self.data[SERVICE_URL] = SERVICE_URL_DEFAULT
+
+    @classmethod
+    def from_basic_auth(cls, email, password, service_url=None):
+        client = Client(service_url)
+        client.auth_impl = BasicAuthClient(email, password)
+
+        return client
+
+    @classmethod
+    def from_sig_auth(cls, api_key, private_key_filename, service_url=None):
+        client = Client(service_url)
+        client.auth_impl = SignatureAuthClient(api_key, private_key_filename)
+
+        return client
+>>>>>>> 8b37488845c70c1047e1bea68d6811a8adea8907
 
     def get_asset_status(self, sha1):
         sub_url = '/assets/' + sha1
@@ -97,7 +131,7 @@ class Client(object):
 
         return requests.patch(full_url, headers=headers, data=data)
 
-    def post_asset(self, data, sha1, patch_count):
+    def post_asset(self, data, sha1=None, patch_count=0):
         sub_url = '/asset'
         full_url = self.service_url + sub_url
         body = None

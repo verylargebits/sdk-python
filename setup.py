@@ -48,7 +48,7 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
     zip_safe=False,
-    install_requires=["requests"],
-    tests_require=["unittest2"],
+    install_requires=["pycrypto", "requests"],
+    tests_require=["future", "unittest2"],
     test_suite="tests.all_tests",
 )
