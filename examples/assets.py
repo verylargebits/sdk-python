@@ -49,6 +49,7 @@ PASSWORD = 'password'
 PATCH_SIZE = 'patch-size'
 PATCH_SIZE_DEFAULT = '4MB'
 PRIVATE_KEY = 'private-key-filename'
+SERVICE_URL = 'service-url'
 
 def calc_sha1(filename):
     """Calculates and returns the base64 encoded SHA1 hash of a file"""
@@ -166,6 +167,10 @@ def main():
         data.pop(API_KEY, None)
         data[PASSWORD] = sys.argv[sys.argv.index('--password') + 1]
 
+    # Allow for changing the service url
+    if SERVICE_URL not in data:
+        data[SERVICE_URL] = None
+
     # Verbosity increases with any of the proper switches
     verbose = '-v' in sys.argv or '--verbose' in sys.argv
     if verbose:
@@ -180,9 +185,9 @@ def main():
 
     # Create either a BASIC or SIGNATURE api client
     if API_KEY in data:
-        client = Client.from_sig_auth(data[API_KEY], data[PRIVATE_KEY])
+        client = Client.from_sig_auth(data[API_KEY], data[PRIVATE_KEY], service_url=data[SERVICE_URL])
     else:
-        client = Client.from_basic_auth(data[EMAIL], data[PASSWORD])
+        client = Client.from_basic_auth(data[EMAIL], data[PASSWORD], service_url=data[SERVICE_URL])
 
     # Allow for changing the default 10 minute wait time for status checks
     if '-w' in sys.argv:

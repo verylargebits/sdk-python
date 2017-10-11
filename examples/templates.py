@@ -43,6 +43,7 @@ API_KEY = 'api-key'
 EMAIL = 'email'
 PASSWORD = 'password'
 PRIVATE_KEY = 'private-key-filename'
+SERVICE_URL = 'service-url'
 
 def print_help():
     """Prints out the details of command line usage of this program"""
@@ -129,6 +130,10 @@ def main():
         data.pop(API_KEY, None)
         data[PASSWORD] = sys.argv[sys.argv.index('--password') + 1]
 
+    # Allow for changing the service url
+    if SERVICE_URL not in data:
+        data[SERVICE_URL] = None
+
     # Verbosity increases with any of the proper switches
     verbose = '-v' in sys.argv or '--verbose' in sys.argv
     if verbose:
@@ -137,15 +142,15 @@ def main():
             print('Private key: %s' % data[PRIVATE_KEY])
         elif EMAIL in data and PASSWORD in data:
             print('Email: %s' % data[EMAIL])
-            print('Password: %s' % ("*" * len(data[PASSWORD])))
+            print('Password: %s' % ('*' * len(data[PASSWORD])))
         else:
             print_help()
 
     # Create either a BASIC or SIGNATURE api client
     if API_KEY in data:
-        client = Client.from_sig_auth(data[API_KEY], data[PRIVATE_KEY])
+        client = Client.from_sig_auth(data[API_KEY], data[PRIVATE_KEY], service_url=data[SERVICE_URL])
     else:
-        client = Client.from_basic_auth(data[EMAIL], data[PASSWORD])
+        client = Client.from_basic_auth(data[EMAIL], data[PASSWORD], service_url=data[SERVICE_URL])
 
     # Main logic: Do we upload a template or work with a render request?
     if '-t' in sys.argv or '--template' in sys.argv:

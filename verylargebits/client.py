@@ -34,7 +34,6 @@ except ImportError:
     raise ImportError('"requests" package not found: see requirements.txt')
 
 # Configuration file keys and defaults
-SERVICE_URL = 'service-url'
 SERVICE_URL_DEFAULT = 'https://api.verylargebits.com'
 
 class BasicAuthClient(object):
@@ -55,37 +54,24 @@ class BasicAuthClient(object):
 class Client(object):
     """REST Client for the Very Large Bits API"""
 
-    def __init__(self):
-        self.auth_impl = None
-
-        # Try to open the config.json file
-        try:
-            with open('config.json') as config_file:
-                self.data = json.load(config_file)
-        except (OSError, IOError):
-            # Fallback to defaults
-            self.data = {}
-
-        if SERVICE_URL not in self.data:
-            self.data[SERVICE_URL] = SERVICE_URL_DEFAULT
+    def __init__(self, auth_impl, service_url):
+        self.auth_impl = auth_impl
+        if service_url == None:
+            self.service_url = SERVICE_URL_DEFAULT
+        else:
+            self.service_url = service_url
 
     @classmethod
-    def from_basic_auth(cls, email, password):
-        client = Client()
-        client.auth_impl = BasicAuthClient(email, password)
-
-        return client
+    def from_basic_auth(cls, email, password, service_url=SERVICE_URL_DEFAULT):
+        return Client(BasicAuthClient(email, password), service_url)
 
     @classmethod
-    def from_sig_auth(cls, api_key, private_key_filename):
-        client = Client()
-        client.auth_impl = SignatureAuthClient(api_key, private_key_filename)
-
-        return client
+    def from_sig_auth(cls, api_key, private_key_filename, service_url=SERVICE_URL_DEFAULT):
+        return Client(SignatureAuthClient(api_key, private_key_filename), service_url)
 
     def get_asset_status(self, sha1):
         sub_url = '/assets/' + sha1
-        full_url = self.data[SERVICE_URL] + sub_url
+        full_url = self.service_url + sub_url
         headers = {
             'Authorization': self.auth_impl.auth_value('GET', sub_url, None),
         }
@@ -94,7 +80,7 @@ class Client(object):
 
     def get_render_status(self, render_id):
         sub_url = '/render/' + render_id + '/status'
-        full_url = self.data[SERVICE_URL] + sub_url
+        full_url = self.service_url + sub_url
         headers = {
             'Authorization': self.auth_impl.auth_value('GET', sub_url, None),
         }
@@ -103,7 +89,7 @@ class Client(object):
 
     def patch_asset(self, asset_id, patch_index, data):
         sub_url = '/asset/' + asset_id + '/' + str(patch_index)
-        full_url = self.data[SERVICE_URL] + sub_url
+        full_url = self.service_url + sub_url
         headers = {
             'Authorization': self.auth_impl.auth_value('PATCH', sub_url, data),
             'Content-Type': 'application/octet-stream',
@@ -113,7 +99,7 @@ class Client(object):
 
     def post_asset(self, data, sha1, patch_count):
         sub_url = '/asset'
-        full_url = self.data[SERVICE_URL] + sub_url
+        full_url = self.service_url + sub_url
         body = None
         if patch_count == 0:
             body = data
@@ -137,7 +123,7 @@ class Client(object):
 
     def post_render(self, template_id, vars_, wait_until, wait_for):
         sub_url = '/render'
-        full_url = self.data[SERVICE_URL] + sub_url
+        full_url = self.service_url + sub_url
         body = json.dumps({
             'src': template_id,
             'vars': vars_,
@@ -155,7 +141,7 @@ class Client(object):
 
     def post_template(self, template):
         sub_url = '/template'
-        full_url = self.data[SERVICE_URL] + sub_url
+        full_url = self.service_url + sub_url
         body = json.dumps(template)
         headers = {
             'Authorization': self.auth_impl.auth_value('POST', sub_url, body),
