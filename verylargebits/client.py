@@ -121,13 +121,20 @@ class Client(object):
             headers['Content-Type'] = 'application/json'
             return requests.post(full_url, headers=headers, data=body)
 
-    def post_render(self, template_id, vars_={}, wait_until=None, wait_secs=None):
+    def post_render(self, template_id, storage=None, vars_=None, wait_until=None, wait_secs=None):
         sub_url = '/render'
         full_url = self.service_url + sub_url
-        body = json.dumps({
+        body_json = {
             'src': template_id,
-            'vars': vars_,
-        }).encode('utf-8')
+        }
+
+        if storage != None:
+            body_json['storage'] = storage
+
+        if vars_ != None:
+            body_json['vars'] = vars_
+
+        body = json.dumps(body_json).encode('utf-8')
         headers = {
             'Authorization': self.auth_impl.auth_value('POST', sub_url, body),
             'Content-Type': 'application/json',

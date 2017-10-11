@@ -56,6 +56,7 @@ Adds templates using the Very Large Bits system. Examples:
 Renders templates using the Very Large Bits system. Examples:
     python templates.py --render 6nnrqkpbffq8ke6y7rh6trccz5 --vars vars.json
     python templates.py -r 6nnrqkpbffq8ke6y7rh6trccz5 --vars vars.json --done
+    python templates.py -r 6nnrqkpbffq8ke6y7rh6trccz5 --store-http POST https://myserver/endpoint
 
 Checks the status of existing renders using the Very Large Bits system. Example:
     python templates.py --status 6nnrqkpbffq8ke6y7rh6trccz5
@@ -75,6 +76,7 @@ Template mode OPTIONs:
 Render mode OPTIONs:
     -r or --render      The ID of the template to render. Returns the ID of the new render.
     --done              Blocks until rendering and storage operations have completed.
+    --store-http        If specified must be followed by the HTTP method and endpoint.
     --vars              A JSON-formatted dictionary file which specifies variable-replacement
                         operations, if any.
     -w or --wait        The number of seconds to block when --done is used. Default is
@@ -192,15 +194,26 @@ def main():
             wait_until = None
             wait_secs = None
 
+        # Allow for HTTP storage
+        if '--store-http' in sys.argv:
+            storage = {
+                'type': 'HTTP',
+                'verb': sys.argv[sys.argv.index('--store-http') + 1],
+                'url': sys.argv[sys.argv.index('--store-http') + 2],
+            }
+        else:
+            storage = None
+
         # Load the vars dictionary file, if provided
         if '--vars' in sys.argv:
             with open(sys.argv[sys.argv.index('--vars') + 1]) as vars_file:
                 vars_ = json.load(vars_file)
         else:
-            vars_ = {}
+            vars_ = None
 
         # Use the SDK to render an existing template
         resp = client.post_render(template_id,
+                                  storage=storage,
                                   vars_=vars_,
                                   wait_until=wait_until,
                                   wait_secs=wait_secs)
