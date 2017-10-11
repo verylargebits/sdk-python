@@ -127,7 +127,7 @@ class Client(object):
         body = json.dumps({
             'src': template_id,
             'vars': vars_,
-        })
+        }).encode('utf-8')
         headers = {
             'Authorization': self.auth_impl.auth_value('POST', sub_url, body),
             'Content-Type': 'application/json',
@@ -142,7 +142,7 @@ class Client(object):
     def post_template(self, template):
         sub_url = '/template'
         full_url = self.service_url + sub_url
-        body = json.dumps(template)
+        body = json.dumps(template).encode('utf-8')
         headers = {
             'Authorization': self.auth_impl.auth_value('POST', sub_url, body),
             'Content-Type': 'application/json',
