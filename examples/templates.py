@@ -200,7 +200,10 @@ def main():
             vars_ = {}
 
         # Use the SDK to render an existing template
-        resp = client.post_render(template_id, vars_=vars_, wait_until=wait_until, wait_secs=wait_secs)
+        resp = client.post_render(template_id,
+                                  vars_=vars_,
+                                  wait_until=wait_until,
+                                  wait_secs=wait_secs)
         if resp.status_code == 200:
             print('Render: %s' % resp.json()['id'])
         else:
