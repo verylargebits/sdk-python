@@ -7,6 +7,8 @@ The **Very Large Bits SDK for Python** enables Python 2.7 and Python 3.x develop
 * [Issues][sdk-issues]
 
 ## Release Notes ##
+
+Version 0.1.6 - Added public key authentication
 Version 0.1.5 - Initial release
 
 ## Getting Started
@@ -37,7 +39,7 @@ pip install verylargebits
 
 ## Supported Versions
 
-* **0.1.5** - Recommended.
+* **0.1.6** - Recommended.
 
 [vlb]: https://verylargebits.com
 [docs-api]: https://api.verylargebits.com/docs/
