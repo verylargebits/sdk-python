@@ -26,19 +26,19 @@ from setuptools import setup
 setup(
     name="verylargebits",
     packages=["verylargebits"],
-    version="0.1.5",
+    version="0.1.6",
     description="Python SDK for the Very Large Bits API",
     long_description="Provides an easy-to-use HTTP client for all supported Very Large Bits\
  services and authentication protocols.",
     url="https://github.com/verylargebits/sdk-python",
-    download_url="https://github.com/verylargebits/sdk-python/archive/0.1.5.tar.gz",
+    download_url="https://github.com/verylargebits/sdk-python/archive/0.1.6.tar.gz",
     author="John Wells",
     author_email="john@verylargebits.com",
     maintainer="John Wells",
     maintainer_email="john@verylargebits.com",
     classifiers=[
         # See: https://pypi.python.org/pypi?:action=list_classifiers
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
