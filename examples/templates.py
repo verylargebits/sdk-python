@@ -77,6 +77,7 @@ Render mode OPTIONs:
     -r or --render      The ID of the template to render. Returns the ID of the new render.
     --done              Blocks until rendering and storage operations have completed.
     --store-http        If specified must be followed by the HTTP method and endpoint.
+                        Example: --store-http POST https://server.org
     --vars              A JSON-formatted dictionary file which specifies variable-replacement
                         operations, if any.
     -w or --wait        The number of seconds to block when --done is used. Default is
