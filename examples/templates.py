@@ -76,6 +76,11 @@ Template mode OPTIONs:
 Render mode OPTIONs:
     -r or --render      The ID of the template to render. Returns the ID of the new render.
     --done              Blocks until rendering and storage operations have completed.
+    --store-s3          If specified must be followed by the access key id, secrect key, and
+                        bucket name.
+                        Example: --store-s3 AKIAJI3TA DWzBdz52JuTJa0QyP16Hdosomc mybucket
+    --store-s3-url      If specified must be the URL of the S3 server to use
+    --store-s3-region   If specified must be the AWS Region to use
     --store-http        If specified must be followed by the HTTP method and endpoint.
                         Example: --store-http POST https://server.org
     --vars              A JSON-formatted dictionary file which specifies variable-replacement
@@ -195,13 +200,30 @@ def main():
             wait_until = None
             wait_secs = None
 
-        # Allow for HTTP storage
+        # Allow for HTTP and S3 storage
         if '--store-http' in sys.argv:
             storage = {
                 'type': 'HTTP',
                 'verb': sys.argv[sys.argv.index('--store-http') + 1],
                 'url': sys.argv[sys.argv.index('--store-http') + 2],
             }
+        elif '--store-s3' in sys.argv:
+            storage = {
+                'type': 'S3',
+                'access_key_id': sys.argv[sys.argv.index('--store-s3') + 1],
+                'secret_key_id': sys.argv[sys.argv.index('--store-s3') + 2],
+                'bucket': sys.argv[sys.argv.index('--store-s3') + 3],
+            }
+
+            if '--store-s3-url' in sys.argv:
+                storage.update({
+                    'url': sys.argv[sys.argv.index('--store-s3-url') + 1]
+                })
+
+            if '--store-s3-region' in sys.argv:
+                storage.update({
+                    'region': sys.argv[sys.argv.index('--store-s3-region') + 1]
+                })
         else:
             storage = None
 
