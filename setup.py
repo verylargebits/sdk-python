@@ -26,12 +26,12 @@ from setuptools import setup
 setup(
     name="verylargebits",
     packages=["verylargebits"],
-    version="0.1.7",
+    version="0.1.8",
     description="Python SDK for the Very Large Bits API",
     long_description="Provides an easy-to-use HTTP client for all supported Very Large Bits\
  services and authentication protocols.",
     url="https://github.com/verylargebits/sdk-python",
-    download_url="https://github.com/verylargebits/sdk-python/archive/0.1.7.tar.gz",
+    download_url="https://github.com/verylargebits/sdk-python/archive/0.1.8.tar.gz",
     author="John Wells",
     author_email="john@verylargebits.com",
     maintainer="John Wells",
@@ -48,7 +48,7 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
     zip_safe=False,
-    install_requires=["pycrypto", "requests"],
+    install_requires=["pycryptodome", "requests"],
     tests_require=["future", "unittest2"],
     test_suite="tests.all_tests",
 )
